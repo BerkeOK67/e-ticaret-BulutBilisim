@@ -23,9 +23,10 @@ model User {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(255)
   email     String   @unique @db.VarChar(255)
-  password  String   @db.VarChar(255)
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  password      String   @db.VarChar(255)
+  role          Role     @default(USER)
+  walletBalance Decimal  @default(0.00) @db.Decimal(10, 2)
+  createdAt     DateTime @default(now())
 
   cart   Cart[]
   orders Order[]
@@ -38,7 +39,9 @@ model Product {
   name        String   @db.VarChar(255)
   description String   @db.Text
   price       Decimal  @db.Decimal(10, 2)
+  taxRate     Int      @default(18)
   stock       Int
+  category    String?  @db.VarChar(255)
   imageUrl    String?  @db.VarChar(500)
   createdAt   DateTime @default(now())
 
@@ -62,12 +65,13 @@ model Cart {
 }
 
 model Order {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  totalPrice Decimal  @db.Decimal(10, 2)
-  orderDate  DateTime @default(now())
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  totalPrice  Decimal  @db.Decimal(10, 2)
+  shippingFee Decimal  @default(0.00) @db.Decimal(10, 2)
+  orderDate   DateTime @default(now())
 
-  user  User        @relation(fields: [userId], references: [id])
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items OrderItem[]
 
   @@map("orders")

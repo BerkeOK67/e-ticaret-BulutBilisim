@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ShopCloud — E-Ticaret Platformu</title>
-  <meta name="description" content="AWS üzerinde çalışan modern, ölçeklenebilir e-ticaret platformu." />
+  <title>NEXUS Market — Teknoloji Mağazası</title>
+  <meta name="description" content="Güvenli ve hızlı teknoloji alışverişi." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -15,238 +15,321 @@
   <!-- ── NAVBAR ─────────────────────────────────────── -->
   <nav id="navbar">
     <div class="nav-inner">
-      <a href="#" class="logo" id="logo-btn">
-        <span class="logo-icon">⚡</span>
-        ShopCloud
+      <a href="#" class="logo" onclick="showPage('home')">
+        <div class="logo-icon">N</div>
+        <span class="logo-text">NEXUS</span>
+        <span class="logo-sub">Market</span>
       </a>
-      <div class="nav-links">
-        <button class="nav-link active" id="nav-products" onclick="showPage('products')">Ürünler</button>
-        <button class="nav-link" id="nav-orders" onclick="showPage('orders')">Siparişlerim</button>
-        <button class="nav-link admin-only hidden" id="nav-admin" onclick="showPage('admin')">Admin</button>
+
+      <div class="nav-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="nav-search-input" placeholder="Ürün, kategori ara..." oninput="searchFromNav()" />
       </div>
+
       <div class="nav-actions">
-        <button class="cart-btn" id="cart-btn" onclick="toggleCart()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-          <span class="cart-count" id="cart-count">0</span>
+        <!-- Guest buttons -->
+        <div id="guest-btns">
+          <button class="btn-outline" onclick="openAuthModal('login')">Giriş Yap</button>
+          <button class="btn-primary" onclick="openAuthModal('register')">Üye Ol</button>
+        </div>
+        <!-- User info -->
+        <div id="user-btns" class="hidden">
+          <div class="user-chip">
+            <div class="user-av" id="user-av"></div>
+            <span id="user-name-nav"></span>
+          </div>
+          <div class="wallet-badge" title="Cüzdan Bakiyesi">
+            <span id="wallet-balance">₺0,00</span>
+          </div>
+          <button class="btn-primary" style="padding: 7px 14px; font-size: 13px; font-weight: 600;" onclick="openWalletModal()">Bakiye Yükle</button>
+          <button class="nav-link-btn" onclick="showPage('orders')">📦 Siparişler</button>
+          <button class="nav-link-btn admin-only hidden" onclick="window.location.href='/admin.html'">⚙️ Admin</button>
+          <button class="btn-outline-sm" onclick="logout()">Çıkış</button>
+        </div>
+        <!-- Cart -->
+        <button class="cart-btn" onclick="toggleCart()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" id="cart-count">0</span>
         </button>
-        <div id="auth-section">
-          <button class="btn btn-outline" id="login-btn" onclick="openAuthModal('login')">Giriş</button>
-          <button class="btn btn-primary" id="register-btn" onclick="openAuthModal('register')">Kayıt Ol</button>
-        </div>
-        <div id="user-section" class="hidden">
-          <span class="user-name" id="user-name"></span>
-          <button class="btn btn-ghost" onclick="logout()">Çıkış</button>
-        </div>
       </div>
     </div>
   </nav>
 
-  <!-- ── HERO ──────────────────────────────────────── -->
-  <section id="hero-section">
-    <div class="hero-content">
-      <div class="hero-badge">🚀 AWS Üzerinde Çalışıyor</div>
-      <h1>Akıllı Alışverişin<br /><span class="gradient-text">Yeni Adresi</span></h1>
-      <p>Otomatik ölçeklendirme ve yük dengeleme ile güçlendirilmiş, hızlı ve güvenli alışveriş deneyimi.</p>
-      <button class="btn btn-primary btn-lg" onclick="document.getElementById('products-section').scrollIntoView({behavior:'smooth'})">Alışverişe Başla</button>
-    </div>
-    <div class="hero-visual">
-      <div class="floating-card card1">
-        <span>⚡ Hızlı Teslimat</span>
+  <!-- ════════════════════════════════════════════════
+       LANDING PAGE (Guest)
+  ════════════════════════════════════════════════ -->
+  <main id="landing-page" class="page">
+    <!-- Hero -->
+    <section class="hero-landing">
+      <div class="hero-inner">
+        <div class="hero-left">
+          <div class="hero-tag">🚀 AWS Altyapısıyla Güçlü</div>
+          <h1>Teknolojide En İyi <span class="hl">Fiyatlar</span> ve En Hızlı Teslimat</h1>
+          <p>Telefon, bilgisayar, oyun konsolları ve daha fazlası. Güvenli ödeme, kolay iade.</p>
+          <div class="hero-cta">
+            <button class="btn-primary btn-lg" style="padding: 14px 28px; font-size: 16px;" onclick="openAuthModal('register')">Ücretsiz Üye Ol</button>
+            <button class="btn-outline btn-lg" style="padding: 14px 28px; font-size: 16px;" onclick="openAuthModal('login')">Giriş Yap</button>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="hero-banner">
+            <div class="banner-emoji">🛍️</div>
+            <div class="banner-text">
+              <strong>Binlerce Ürün</strong>
+              <span>Seçkin markalar, uygun fiyatlar</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="floating-card card2">
-        <span>🔒 Güvenli Ödeme</span>
-      </div>
-      <div class="floating-card card3">
-        <span>☁️ AWS Altyapı</span>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ── PRODUCTS PAGE ─────────────────────────────── -->
-  <main id="products-page" class="page active">
-    <section id="products-section" class="container">
-      <div class="section-header">
-        <h2>Ürünler</h2>
-        <div class="search-bar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input type="text" id="search-input" placeholder="Ürün ara..." oninput="filterProducts()" />
+    <!-- Benefits -->
+    <section class="benefits">
+      <div class="benefits-inner">
+        <div class="benefit-card">
+          <div class="benefit-icon">🔒</div>
+          <h3>Güvenli Alışveriş</h3>
+          <p>JWT ile korumalı hesabınız, şifreli işlemler ve güvenli ödeme altyapısı.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">⚡</div>
+          <h3>Hızlı Teslimat</h3>
+          <p>AWS Auto Scaling sayesinde yoğun anlarda bile kesintisiz hizmet.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">📦</div>
+          <h3>Kolay İade</h3>
+          <p>Sipariş takibi ve yönetimi kolayca hesabınızdan yapılır.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon">🌐</div>
+          <h3>7/24 Erişim</h3>
+          <p>Yük dengeleme ve yüksek erişilebilirlik ile her an alışveriş yapın.</p>
         </div>
       </div>
-      <div class="products-grid" id="products-grid">
-        <div class="loading-skeleton" id="products-loading">
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
-          <div class="skeleton-card"></div>
+    </section>
+
+    <!-- Login CTA Banner -->
+    <section class="cta-banner">
+      <div class="cta-inner">
+        <div>
+          <h2>Avantajlardan Yararlanmak İçin Giriş Yapın</h2>
+          <p>Üye girişi ile sepet, sipariş takibi ve özel fırsatlara erişin.</p>
         </div>
+        <div class="cta-btns">
+          <button class="btn-white" onclick="openAuthModal('login')">Giriş Yap</button>
+          <button class="btn-outline-white" onclick="openAuthModal('register')">Üye Ol</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preview Products (guest can browse) -->
+    <section class="preview-section">
+      <div class="preview-header">
+        <h2>Öne Çıkan Ürünler</h2>
+        <button class="btn-link" onclick="openAuthModal('login')">Tümünü Görmek İçin Giriş Yap →</button>
+      </div>
+      <div class="preview-grid" id="preview-grid">
+        <!-- Filled by JS -->
       </div>
     </section>
   </main>
 
-  <!-- ── ORDERS PAGE ───────────────────────────────── -->
+  <!-- ════════════════════════════════════════════════
+       SHOP PAGE (Logged in)
+  ════════════════════════════════════════════════ -->
+  <main id="shop-page" class="page hidden">
+    <div class="shop-layout">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-welcome">
+          <div class="sw-avatar" id="sw-avatar"></div>
+          <div>
+            <div class="sw-hi">Merhaba,</div>
+            <div class="sw-name" id="sw-name"></div>
+          </div>
+        </div>
+
+        <nav class="cat-nav">
+          <div class="cat-label">Kategoriler</div>
+          <button class="cat-item active" data-cat="all" onclick="filterByCategory('all', this)">
+            <span class="cat-icon">🏠</span> Tüm Ürünler
+          </button>
+          <button class="cat-item" data-cat="Telefon" onclick="filterByCategory('Telefon', this)">
+            <span class="cat-icon">📱</span> Telefon
+          </button>
+          <button class="cat-item" data-cat="Bilgisayar" onclick="filterByCategory('Bilgisayar', this)">
+            <span class="cat-icon">💻</span> Bilgisayar & Tablet
+          </button>
+          <button class="cat-item" data-cat="Oyun" onclick="filterByCategory('Oyun', this)">
+            <span class="cat-icon">🎮</span> Oyun & Konsol
+          </button>
+          <button class="cat-item" data-cat="Ses" onclick="filterByCategory('Ses', this)">
+            <span class="cat-icon">🎧</span> Ses Sistemleri
+          </button>
+          <button class="cat-item" data-cat="Fotoğraf" onclick="filterByCategory('Fotoğraf', this)">
+            <span class="cat-icon">📷</span> Fotoğraf & Video
+          </button>
+          <button class="cat-item" data-cat="TV" onclick="filterByCategory('TV', this)">
+            <span class="cat-icon">📺</span> TV & Görüntü
+          </button>
+          <button class="cat-item" data-cat="Saat" onclick="filterByCategory('Saat', this)">
+            <span class="cat-icon">⌚</span> Akıllı Saat
+          </button>
+          <button class="cat-item" data-cat="Aksesuar" onclick="filterByCategory('Aksesuar', this)">
+            <span class="cat-icon">🔌</span> Aksesuarlar
+          </button>
+        </nav>
+
+        <div class="sidebar-links">
+          <button class="side-link" onclick="showPage('orders')">📦 Siparişlerim</button>
+          <button class="side-link admin-only hidden" onclick="showPage('admin')">⚙️ Admin Paneli</button>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="shop-main">
+        <div class="shop-topbar">
+          <div class="shop-title" id="shop-cat-title">Tüm Ürünler</div>
+          <div class="shop-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="search-input" placeholder="Ürün ara..." oninput="filterProducts()" />
+          </div>
+          <div class="product-count" id="product-count"></div>
+        </div>
+        <div class="products-grid" id="products-grid">
+          <div class="skeleton-wrap" id="products-loading">
+            <div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div><div class="skeleton"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ════════════════════════════════════════════════
+       ORDERS PAGE
+  ════════════════════════════════════════════════ -->
   <main id="orders-page" class="page hidden">
-    <section class="container">
-      <div class="section-header">
+    <div class="inner-wrap">
+      <div class="inner-header">
+        <button class="back-btn" onclick="showPage('shop')">← Alışverişe Dön</button>
         <h2>Siparişlerim</h2>
       </div>
-      <div id="orders-container">
-        <div class="empty-state" id="orders-empty">
-          <div class="empty-icon">📦</div>
-          <h3>Henüz sipariş yok</h3>
-          <p>Ürünleri sepete ekleyip sipariş oluşturabilirsiniz.</p>
-          <button class="btn btn-primary" onclick="showPage('products')">Alışverişe Git</button>
-        </div>
-      </div>
-    </section>
+      <div id="orders-container"></div>
+    </div>
   </main>
 
-  <!-- ── ADMIN PAGE ────────────────────────────────── -->
-  <main id="admin-page" class="page hidden">
-    <section class="container">
-      <div class="section-header">
-        <h2>Admin Paneli</h2>
-        <button class="btn btn-primary" onclick="openProductModal()">+ Ürün Ekle</button>
-      </div>
-      <div class="admin-tabs">
-        <button class="tab-btn active" onclick="switchAdminTab('products-tab')">Ürünler</button>
-        <button class="tab-btn" onclick="switchAdminTab('users-tab')">Kullanıcılar</button>
-      </div>
-      <div id="products-tab" class="tab-content">
-        <table class="admin-table" id="admin-products-table">
-          <thead>
-            <tr><th>ID</th><th>Ürün</th><th>Fiyat</th><th>Stok</th><th>İşlemler</th></tr>
-          </thead>
-          <tbody id="admin-products-body"></tbody>
-        </table>
-      </div>
-      <div id="users-tab" class="tab-content hidden">
-        <table class="admin-table" id="admin-users-table">
-          <thead>
-            <tr><th>ID</th><th>Ad</th><th>E-posta</th><th>Rol</th><th>Kayıt Tarihi</th></tr>
-          </thead>
-          <tbody id="admin-users-body"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+  <!-- ADMIN KISMI ADMIN.HTML'E TAŞINDI -->
 
-  <!-- ── CART SIDEBAR ──────────────────────────────── -->
-  <div class="cart-overlay" id="cart-overlay" onclick="toggleCart()"></div>
-  <aside class="cart-sidebar" id="cart-sidebar">
-    <div class="cart-header">
-      <h3>Sepetim</h3>
-      <button class="close-btn" onclick="toggleCart()">✕</button>
+  <!-- ── CART DRAWER ─────────────────────────────────── -->
+  <div class="overlay" id="cart-overlay" onclick="toggleCart()"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="drawer-head">
+      <h3>Sepetim <span class="cart-item-count" id="cart-item-count"></span></h3>
+      <button class="x-btn" onclick="toggleCart()">✕</button>
     </div>
-    <div class="cart-items" id="cart-items">
-      <div class="empty-state">
-        <div class="empty-icon">🛒</div>
-        <p>Sepetiniz boş</p>
-      </div>
+    <div class="drawer-body" id="cart-items">
+      <div class="empty-state"><div>🛒</div><p>Sepetiniz boş</p></div>
     </div>
-    <div class="cart-footer" id="cart-footer" style="display:none">
-      <div class="cart-total">
-        <span>Toplam</span>
-        <span class="total-price" id="cart-total">₺0.00</span>
+    <div class="drawer-foot hidden" id="cart-footer">
+      <div class="cart-total-row">
+        <span>Toplam Tutar</span>
+        <strong id="cart-total">₺0,00</strong>
       </div>
-      <button class="btn btn-primary btn-full" id="checkout-btn" onclick="createOrder()">Sipariş Ver</button>
+      <button class="btn-checkout" id="checkout-btn" onclick="openInvoiceModal()">
+        Siparişi Tamamla →
+      </button>
     </div>
   </aside>
 
-  <!-- ── AUTH MODAL ────────────────────────────────── -->
-  <div class="modal-overlay" id="auth-modal-overlay" onclick="closeAuthModal()">
-    <div class="modal" id="auth-modal" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-tabs">
-          <button class="modal-tab active" id="login-tab" onclick="switchAuthTab('login')">Giriş Yap</button>
-          <button class="modal-tab" id="register-tab" onclick="switchAuthTab('register')">Kayıt Ol</button>
+  <!-- ── AUTH MODAL ──────────────────────────────────── -->
+  <div class="overlay" id="auth-overlay" onclick="closeAuthModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-x" onclick="closeAuthModal()">✕</button>
+      <div class="modal-tabs">
+        <button class="m-tab active" id="tab-login" onclick="switchAuthTab('login')">Giriş Yap</button>
+        <button class="m-tab" id="tab-register" onclick="switchAuthTab('register')">Kayıt Ol</button>
+      </div>
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="field"><label>E-posta</label><input type="email" id="login-email" placeholder="ornek@email.com" required /></div>
+        <div class="field"><label>Şifre</label><input type="password" id="login-password" placeholder="Şifreniz" required /></div>
+        <div class="demo-box">
+          <b>Test hesapları:</b><br>
+          ali@example.com / user123<br>
+          admin@example.com / admin123
         </div>
-        <button class="close-btn" onclick="closeAuthModal()">✕</button>
+        <button type="submit" class="btn-primary btn-full" id="login-submit">Giriş Yap</button>
+      </form>
+      <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
+        <div class="field"><label>Ad Soyad</label><input type="text" id="reg-name" placeholder="Adınız Soyadınız" required /></div>
+        <div class="field"><label>E-posta</label><input type="email" id="reg-email" placeholder="ornek@email.com" required /></div>
+        <div class="field"><label>Şifre</label><input type="password" id="reg-password" placeholder="En az 6 karakter" required /></div>
+        <button type="submit" class="btn-primary btn-full" id="register-submit">Hesap Oluştur</button>
+      </form>
+      <div class="form-err hidden" id="auth-error"></div>
+    </div>
+  </div>
+
+
+
+  <!-- ── WALLET MODAL ────────────────────────────────── -->
+  <div class="overlay" id="wallet-overlay" onclick="closeWalletModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-x" onclick="closeWalletModal()">✕</button>
+      <h3 class="modal-title">Bakiye Yükle</h3>
+      <form id="wallet-form" onsubmit="handleAddBalance(event)">
+        <div class="field">
+          <label>Yüklenecek Tutar (₺)</label>
+          <input type="number" id="wallet-amount" step="1" min="1" required placeholder="Örn: 500" />
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="wallet-submit">Yükle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- CREATE ADMIN MODAL ADMIN.HTML'E TAŞINDI -->
+
+  <!-- ── INVOICE MODAL ──────────────────────────── -->
+  <div class="overlay" id="invoice-overlay" style="z-index:10000;">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3 class="modal-title">Fatura & Sipariş Onayı</h3>
+      <div id="invoice-items" style="max-height:200px; overflow-y:auto; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:16px;"></div>
+      <div style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-2); align-items:flex-end;">
+        <div>KDV Hariç Ara Toplam: <strong id="inv-pretax">₺0,00</strong></div>
+        <div>KDV Tutarı: <strong id="inv-tax">₺0,00</strong></div>
+        <div id="inv-shipping-row">Kargo Ücreti: <strong id="inv-shipping">₺0,00</strong></div>
+        <div style="font-size:16px; color:var(--text); margin-top:8px;">Ödenecek Toplam: <strong id="inv-total">₺0,00</strong></div>
       </div>
-      <div class="modal-body">
-        <!-- Login Form -->
-        <form id="login-form" onsubmit="handleLogin(event)">
-          <div class="form-group">
-            <label>E-posta</label>
-            <input type="email" id="login-email" placeholder="ornek@email.com" required />
-          </div>
-          <div class="form-group">
-            <label>Şifre</label>
-            <input type="password" id="login-password" placeholder="••••••••" required />
-          </div>
-          <div class="auth-hint">
-            <span>Test: <b>ali@example.com</b> / <b>user123</b></span><br>
-            <span>Admin: <b>admin@example.com</b> / <b>admin123</b></span>
-          </div>
-          <button type="submit" class="btn btn-primary btn-full" id="login-submit">Giriş Yap</button>
-        </form>
-        <!-- Register Form -->
-        <form id="register-form" class="hidden" onsubmit="handleRegister(event)">
-          <div class="form-group">
-            <label>Ad Soyad</label>
-            <input type="text" id="reg-name" placeholder="Ali Veli" required />
-          </div>
-          <div class="form-group">
-            <label>E-posta</label>
-            <input type="email" id="reg-email" placeholder="ornek@email.com" required />
-          </div>
-          <div class="form-group">
-            <label>Şifre</label>
-            <input type="password" id="reg-password" placeholder="En az 6 karakter" required />
-          </div>
-          <button type="submit" class="btn btn-primary btn-full" id="register-submit">Kayıt Ol</button>
-        </form>
-        <div class="auth-error hidden" id="auth-error"></div>
+      <div class="form-err hidden" id="inv-error" style="margin-top:12px;"></div>
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="btn-outline-sm btn-full" onclick="closeInvoiceModal()" style="padding:10px;">İptal</button>
+        <button class="btn-primary btn-full" id="confirm-order-btn" onclick="confirmInvoiceOrder()" style="padding:10px;">Siparişi Onayla</button>
       </div>
     </div>
   </div>
 
-  <!-- ── PRODUCT MODAL (Admin) ─────────────────────── -->
-  <div class="modal-overlay" id="product-modal-overlay" onclick="closeProductModal()">
-    <div class="modal" id="product-modal" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3 id="product-modal-title">Ürün Ekle</h3>
-        <button class="close-btn" onclick="closeProductModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="product-form" onsubmit="handleProductSave(event)">
-          <input type="hidden" id="product-id" />
-          <div class="form-group">
-            <label>Ürün Adı</label>
-            <input type="text" id="prod-name" placeholder="Ürün adı" required />
-          </div>
-          <div class="form-group">
-            <label>Açıklama</label>
-            <textarea id="prod-desc" placeholder="Ürün açıklaması" required rows="3"></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Fiyat (₺)</label>
-              <input type="number" id="prod-price" placeholder="0.00" step="0.01" min="0" required />
-            </div>
-            <div class="form-group">
-              <label>Stok</label>
-              <input type="number" id="prod-stock" placeholder="0" min="0" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Görsel URL (opsiyonel)</label>
-            <input type="url" id="prod-image" placeholder="https://..." />
-          </div>
-          <div class="prod-error hidden" id="prod-error"></div>
-          <button type="submit" class="btn btn-primary btn-full" id="product-submit">Kaydet</button>
-        </form>
+  <!-- ── CUSTOM CONFIRM MODAL ──────────────────────────── -->
+  <div class="overlay" id="confirm-overlay" style="z-index:9999;">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3 class="modal-title" id="confirm-title">Emin misiniz?</h3>
+      <p id="confirm-msg" style="margin-bottom:20px; color:var(--text-2);"></p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-outline-sm btn-full" id="confirm-no" style="padding:10px;">İptal</button>
+        <button class="btn-primary btn-full" id="confirm-yes" style="padding:10px;">Onayla</button>
       </div>
     </div>
   </div>
 
-  <!-- ── TOAST ─────────────────────────────────────── -->
-  <div class="toast-container" id="toast-container"></div>
+  <!-- ── TOASTS ───────────────────────────────────────── -->
+  <div id="toasts"></div>
 
   <footer class="footer">
-    <div class="container">
-      <p>⚡ ShopCloud — AWS EC2 + RDS + ELB + Auto Scaling üzerinde çalışıyor</p>
+    <div class="footer-inner">
+      <span>© 2026 NEXUS Market</span>
+      <span>☁️ AWS EC2 + RDS + ELB + Auto Scaling</span>
     </div>
   </footer>
 

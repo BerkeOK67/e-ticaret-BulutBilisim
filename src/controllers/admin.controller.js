@@ -9,10 +9,18 @@ const createProduct = async (req, res, next) => {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    const { name, description, price, stock, imageUrl } = req.body;
+    const { name, description, price, stock, imageUrl, category, taxRate } = req.body;
 
     const product = await prisma.product.create({
-      data: { name, description, price: parseFloat(price), stock: parseInt(stock), imageUrl },
+      data: { 
+        name, 
+        description, 
+        price: parseFloat(price), 
+        stock: parseInt(stock), 
+        imageUrl, 
+        category,
+        taxRate: taxRate !== undefined ? parseInt(taxRate) : 18
+      },
     });
 
     res.status(201).json({ success: true, data: product });
@@ -30,7 +38,7 @@ const updateProduct = async (req, res, next) => {
     }
 
     const id = parseInt(req.params.id);
-    const { name, description, price, stock, imageUrl } = req.body;
+    const { name, description, price, stock, imageUrl, category, taxRate } = req.body;
 
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) {
@@ -45,6 +53,8 @@ const updateProduct = async (req, res, next) => {
         ...(price !== undefined && { price: parseFloat(price) }),
         ...(stock !== undefined && { stock: parseInt(stock) }),
         ...(imageUrl !== undefined && { imageUrl }),
+        ...(category !== undefined && { category }),
+        ...(taxRate !== undefined && { taxRate: parseInt(taxRate) }),
       },
     });
 
@@ -85,4 +95,69 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-module.exports = { createProduct, updateProduct, deleteProduct, getUsers };
+// ─── Create admin (admin only) ────────────────────────────
+const createAdmin = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const exists = await prisma.user.findUnique({ where: { email } });
+    if (exists) {
+      return res.status(409).json({ success: false, message: "Email already registered" });
+    }
+
+    const bcrypt = require("bcryptjs");
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const admin = await prisma.user.create({
+      data: { name, email, password: hashedPassword, role: "ADMIN" },
+      select: { id: true, name: true, email: true, role: true, createdAt: true },
+    });
+
+    res.status(201).json({ success: true, data: admin });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Delete user (admin only) ─────────────────────────────
+const deleteUser = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    // Check if user is trying to delete themselves
+    if (id === req.user.id) {
+      return res.status(400).json({ success: false, message: "Kendi hesabınızı silemezsiniz." });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Kullanıcı bulunamadı" });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      // Siparişleri bul
+      const orders = await tx.order.findMany({ where: { userId: id } });
+      const orderIds = orders.map(o => o.id);
+      
+      if (orderIds.length > 0) {
+        // Önce sipariş kalemlerini sil
+        await tx.orderItem.deleteMany({ where: { orderId: { in: orderIds } } });
+      }
+      
+      // Siparişleri sil
+      await tx.order.deleteMany({ where: { userId: id } });
+      
+      // Sepet ürünlerini sil
+      await tx.cart.deleteMany({ where: { userId: id } });
+      
+      // Son olarak kullanıcıyı sil
+      await tx.user.delete({ where: { id } });
+    });
+
+    res.json({ success: true, message: "Kullanıcı başarıyla silindi" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { createProduct, updateProduct, deleteProduct, getUsers, createAdmin, deleteUser };

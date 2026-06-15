@@ -25,17 +25,26 @@ const createOrder = async (req, res, next) => {
       }
     }
 
-    const totalPrice = cartItems.reduce(
+    const cartTotal = cartItems.reduce(
       (sum, item) => sum + Number(item.product.price) * item.quantity,
       0
     );
 
-    // Create order + items + decrement stock in a single transaction
+    const shippingFee = cartTotal <= 300 ? 49.99 : 0;
+    const grandTotal = cartTotal + shippingFee;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (Number(user.walletBalance) < grandTotal) {
+      return res.status(400).json({ success: false, message: "Yetersiz bakiye. Lütfen cüzdanınıza para yükleyin." });
+    }
+
+    // Create order + items + decrement stock + deduct balance in a single transaction
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
           userId,
-          totalPrice,
+          totalPrice: grandTotal,
+          shippingFee,
           items: {
             create: cartItems.map((item) => ({
               productId: item.productId,
@@ -54,6 +63,12 @@ const createOrder = async (req, res, next) => {
           data: { stock: { decrement: item.quantity } },
         });
       }
+
+      // Deduct wallet balance
+      await tx.user.update({
+        where: { id: userId },
+        data: { walletBalance: { decrement: grandTotal } },
+      });
 
       // Clear the user's cart
       await tx.cart.deleteMany({ where: { userId } });
@@ -75,7 +90,7 @@ const getOrders = async (req, res, next) => {
       include: {
         items: {
           include: {
-            product: { select: { id: true, name: true, imageUrl: true } },
+            product: { select: { id: true, name: true, imageUrl: true, taxRate: true } },
           },
         },
       },
