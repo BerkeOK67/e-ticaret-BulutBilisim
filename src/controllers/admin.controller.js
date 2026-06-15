@@ -74,7 +74,11 @@ const deleteProduct = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Product not found" });
     }
 
-    await prisma.product.delete({ where: { id } });
+    await prisma.$transaction([
+      prisma.cart.deleteMany({ where: { productId: id } }),
+      prisma.orderItem.deleteMany({ where: { productId: id } }),
+      prisma.product.delete({ where: { id } }),
+    ]);
 
     res.json({ success: true, message: "Product deleted successfully" });
   } catch (err) {
