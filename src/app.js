@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
@@ -20,6 +21,9 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 // ─── Body Parsing ─────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ─── Static Files (Frontend) ─────────────────────────────
+app.use(express.static(path.join(__dirname, "../public")));
 
 // ─── Health Check ─────────────────────────────────────────
 app.get("/health", (req, res) => {
