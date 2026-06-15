@@ -4,7 +4,7 @@ const prisma = require("../config/database");
 // ─── List all products ────────────────────────────────────
 const getProducts = async (req, res, next) => {
   try {
-    const { page = 1, limit = 12 } = req.query;
+    const { page = 1, limit = 500 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const [products, total] = await Promise.all([
@@ -71,4 +71,20 @@ const searchProducts = async (req, res, next) => {
   }
 };
 
-module.exports = { getProducts, getProductById, searchProducts };
+// ─── Get distinct categories (public) ──────────────────────────
+const getCategories = async (req, res, next) => {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { category: { not: null } },
+      select: { category: true },
+      distinct: ['category'],
+      orderBy: { category: 'asc' },
+    });
+    const categories = rows.map(r => r.category).filter(Boolean);
+    res.json({ success: true, data: categories });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getProducts, getProductById, searchProducts, getCategories };

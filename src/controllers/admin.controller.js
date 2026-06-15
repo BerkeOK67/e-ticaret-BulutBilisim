@@ -90,7 +90,7 @@ const deleteProduct = async (req, res, next) => {
 const getUsers = async (req, res, next) => {
   try {
     const users = await prisma.user.findMany({
-      select: { id: true, name: true, email: true, role: true, createdAt: true },
+      select: { id: true, name: true, email: true, role: true, walletBalance: true, createdAt: true },
       orderBy: { createdAt: "desc" },
     });
     res.json({ success: true, data: users });
@@ -164,4 +164,82 @@ const deleteUser = async (req, res, next) => {
   }
 };
 
-module.exports = { createProduct, updateProduct, deleteProduct, getUsers, createAdmin, deleteUser };
+// ─── Get all categories (distinct values from products) ──
+const getCategories = async (req, res, next) => {
+  try {
+    const rows = await prisma.product.findMany({
+      where: { category: { not: null } },
+      select: { category: true },
+      distinct: ['category'],
+      orderBy: { category: 'asc' },
+    });
+    const categories = rows.map(r => r.category).filter(Boolean);
+    res.json({ success: true, data: categories });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Create category (just ensure name is valid; products can be assigned later) ─
+const createCategory = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+      return res.status(400).json({ success: false, message: 'Kategori adı boş olamaz.' });
+    }
+    const trimmed = name.trim();
+    // Check if already exists
+    const existing = await prisma.product.findFirst({ where: { category: trimmed } });
+    if (existing) {
+      return res.status(409).json({ success: false, message: 'Bu kategori zaten mevcut.' });
+    }
+    // Categories live on products; we just confirm the name is valid and return it
+    res.status(201).json({ success: true, data: trimmed });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Rename category (update all products with old name) ──
+const renameCategory = async (req, res, next) => {
+  try {
+    const { oldName, newName } = req.body;
+    if (!oldName || !newName || !newName.trim()) {
+      return res.status(400).json({ success: false, message: 'Eski ve yeni kategori adı zorunludur.' });
+    }
+    const trimmedNew = newName.trim();
+    const result = await prisma.product.updateMany({
+      where: { category: oldName },
+      data: { category: trimmedNew },
+    });
+    res.json({ success: true, message: `${result.count} ürün güncellendi.`, data: trimmedNew });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Delete category (set products' category to null or reassign) ─
+const deleteCategory = async (req, res, next) => {
+  try {
+    const { name, reassignTo } = req.body;
+    if (!name) {
+      return res.status(400).json({ success: false, message: 'Kategori adı zorunludur.' });
+    }
+    if (reassignTo) {
+      await prisma.product.updateMany({
+        where: { category: name },
+        data: { category: reassignTo },
+      });
+    } else {
+      await prisma.product.updateMany({
+        where: { category: name },
+        data: { category: null },
+      });
+    }
+    res.json({ success: true, message: 'Kategori silindi.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { createProduct, updateProduct, deleteProduct, getUsers, createAdmin, deleteUser, getCategories, createCategory, renameCategory, deleteCategory };

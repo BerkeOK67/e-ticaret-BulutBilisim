@@ -7,6 +7,10 @@ const {
   getUsers,
   createAdmin,
   deleteUser,
+  getCategories,
+  createCategory,
+  renameCategory,
+  deleteCategory,
 } = require("../controllers/admin.controller");
 const { authenticate, authorizeAdmin } = require("../middlewares/auth");
 
@@ -49,7 +53,27 @@ router.delete("/products/:id", deleteProduct);
 router.post("/create", [
   body("name").trim().notEmpty().withMessage("Name is required"),
   body("email").isEmail().withMessage("Valid email is required"),
-  body("password").isLength({ min: 6 }).withMessage("Password min 6 chars")
+  body("password").isLength({ min: 6 }).withMessage("Password min 6 chars"),
 ], createAdmin);
+
+// ─── Category Routes ───────────────────────────────────────
+// GET  /api/admin/categories
+router.get("/categories", getCategories);
+
+// POST /api/admin/categories
+router.post("/categories", [
+  body("name").trim().notEmpty().withMessage("Kategori adı zorunludur."),
+], createCategory);
+
+// PUT  /api/admin/categories/rename
+router.put("/categories/rename", [
+  body("oldName").trim().notEmpty(),
+  body("newName").trim().notEmpty(),
+], renameCategory);
+
+// DELETE /api/admin/categories
+router.delete("/categories", [
+  body("name").trim().notEmpty(),
+], deleteCategory);
 
 module.exports = router;

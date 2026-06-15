@@ -2,53 +2,241 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Paneli - Nexus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Paneli — NEXUS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css">
+  <style>
+    /* ── ADMIN LAYOUT ── */
+    .admin-layout {
+      display: flex;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      min-height: calc(100vh - var(--nav-h) - 40px);
+    }
+
+    /* Left Sidebar — Categories */
+    .admin-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-right: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: var(--nav-h);
+      height: calc(100vh - var(--nav-h) - 40px);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .admin-sidebar-header {
+      padding: 4px 12px 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .admin-sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      margin-bottom: 10px;
+    }
+    .new-cat-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: var(--primary-l);
+      color: var(--primary);
+      border: 1.5px dashed rgba(79,70,229,.4);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 12px;
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .new-cat-btn:hover { background: #ddd6fe; border-color: var(--primary); }
+
+    /* ── CATEGORY SIDEBAR ── */
+    .admin-cat-row {
+      display: flex;
+      align-items: center;
+      border-radius: 0;
+      transition: background .15s;
+    }
+    .admin-cat-row:hover { background: var(--bg); }
+    .admin-cat-row.active { background: var(--primary-l); }
+
+    .admin-cat-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-2);
+      padding: 9px 8px 9px 12px;
+      cursor: pointer;
+      text-align: left;
+      min-width: 0;
+    }
+    .admin-cat-row.active .admin-cat-btn { color: var(--primary); font-weight: 600; }
+    .admin-cat-btn .cat-emoji { font-size: 16px; flex-shrink: 0; }
+    .admin-cat-btn .cat-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-cat-btn .cat-count-badge { font-size: 11px; color: var(--dim); flex-shrink: 0; }
+
+    .cat-action-btns {
+      display: flex;
+      gap: 2px;
+      padding-right: 8px;
+      flex-shrink: 0;
+      opacity: 1; /* Always visible */
+    }
+
+    .cat-icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px 6px;
+      border-radius: 6px;
+      font-size: 13px;
+      line-height: 1;
+      transition: background .15s;
+      color: var(--muted);
+    }
+    .cat-icon-btn.edit:hover { background: #ede9fe; color: #7c3aed; }
+    .cat-icon-btn.del:hover  { background: #fee2e2; color: var(--red); }
+
+    /* Right — Products */
+    .admin-main {
+      flex: 1;
+      padding: 20px 24px;
+      min-width: 0;
+    }
+    .admin-topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 18px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .admin-topbar-title { font-size: 16px; font-weight: 700; flex: 1; }
+
+    /* Users Tab */
+    .admin-users-wrap { padding: 0; }
+
+    /* Announcement bar color tweak for admin */
+    .announcement-bar { background: linear-gradient(90deg,#7c3aed,#4f46e5); }
+  </style>
 </head>
 <body>
+
+  <!-- ── NAVBAR ── -->
   <nav id="navbar">
     <div class="nav-inner">
-      <a href="/" class="logo">
+      <a href="/admin" class="logo">
         <div class="logo-icon">N</div>
-        <div><div class="logo-text">Nexus</div><div class="logo-sub">Yönetim Paneli</div></div>
+        <span class="logo-text">NEXUS</span>
+        <span class="logo-sub">Admin</span>
       </a>
-      <div class="nav-actions">
+
+      <!-- Admin nav tabs -->
+      <div style="display:flex;gap:4px;margin-left:24px;">
+        <button class="nav-link-btn admin-nav-tab active" id="nav-tab-products" onclick="switchMainView('products')">📦 Ürün Yönetimi</button>
+        <button class="nav-link-btn admin-nav-tab" id="nav-tab-users" onclick="switchMainView('users')">👥 Kullanıcılar</button>
+      </div>
+
+      <div class="nav-actions" style="margin-left:auto;">
         <div class="user-chip">
           <div class="user-av" id="admin-av">A</div>
           <span id="admin-name-nav">Admin</span>
         </div>
+        <button class="nav-link-btn" onclick="window.location.href='/shop'">🛍️ Mağaza</button>
         <button class="btn-outline-sm" onclick="adminLogout()">Çıkış</button>
       </div>
     </div>
   </nav>
 
-  <main style="padding: 40px 24px; max-width: 1280px; margin: 0 auto;">
-    <div class="inner-header">
-      <h2>Admin Paneli</h2>
-      <button class="btn-primary" onclick="openProductModal()" id="admin-add-prod-btn">+ Ürün Ekle</button>
-      <button class="btn-primary hidden" onclick="openAdminCreateModal()" id="admin-add-admin-btn">+ Yeni Admin</button>
-    </div>
-    
-    <div class="tabs">
-      <button class="tab active" onclick="switchAdminTab(event,'tab-products')">Ürünler</button>
-      <button class="tab" onclick="switchAdminTab(event,'tab-users')">Kullanıcılar</button>
-    </div>
-    
-    <div id="tab-products" class="tab-panel">
+  <div class="announcement-bar">
+    <span>⚙️ <strong>Admin Paneli</strong> — NEXUS Market Yönetim Ekranı</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       PRODUCTS VIEW (shop-like layout)
+  ══════════════════════════════════════════════ -->
+  <div id="view-products" class="admin-layout">
+
+    <!-- Left Sidebar — Categories -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-header">
+        <div class="admin-sidebar-title">Kategoriler</div>
+        <button class="new-cat-btn" onclick="openCategoryModal()">
+          <span>＋</span> Yeni Kategori
+        </button>
+      </div>
+
+      <nav id="admin-cat-nav" style="flex:1;overflow-y:auto;">
+        <!-- Filled by JS -->
+      </nav>
+    </aside>
+
+    <!-- Right — Products -->
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div class="admin-topbar-title" id="admin-prod-title">Tüm Ürünler</div>
+        <div class="shop-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="admin-search" placeholder="Ürün ara..." oninput="filterAdminProducts()" />
+        </div>
+        <div class="product-count" id="admin-prod-count"></div>
+        <button class="btn-primary" onclick="openProductModal()" style="white-space:nowrap;">+ Ürün Ekle</button>
+      </div>
+
       <div class="products-grid" id="admin-products-grid">
-        <!-- Admin product cards -->
+        <!-- Filled by JS -->
       </div>
     </div>
-    
-    <div id="tab-users" class="tab-panel hidden">
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       USERS VIEW
+  ══════════════════════════════════════════════ -->
+  <div id="view-users" class="hidden" style="max-width:1400px;margin:0 auto;padding:28px 28px;">
+    <div class="inner-header">
+      <h2>Kullanıcı Yönetimi</h2>
+      <button class="btn-primary" onclick="openAdminCreateModal()" style="background:linear-gradient(135deg,#0891b2,#4f46e5)">+ Yeni Admin</button>
+    </div>
+    <div style="overflow-x:auto;">
       <table class="data-table">
-        <thead><tr><th>ID</th><th>Ad</th><th>E-posta</th><th>Rol</th><th>Kayıt</th><th>İşlemler</th></tr></thead>
-        <tbody id="admin-users-body"></tbody>
+        <thead>
+          <tr><th>ID</th><th>Ad Soyad</th><th>E-posta</th><th>Rol</th><th>Bakiye</th><th>Kayıt Tarihi</th><th>İşlemler</th></tr>
+        </thead>
+        <tbody id="admin-users-body">
+          <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px;">Yükleniyor...</td></tr>
+        </tbody>
       </table>
     </div>
-  </main>
+  </div>
 
-  <!-- ── PRODUCT MODAL ───────────────────────────────── -->
+  <!-- ══════════════════════════════════════════════
+       MODALS
+  ══════════════════════════════════════════════ -->
+
+  <!-- Product Modal -->
   <div class="overlay" id="prod-overlay" onclick="closeProductModal()">
     <div class="modal" onclick="event.stopPropagation()">
       <button class="modal-x" onclick="closeProductModal()">✕</button>
@@ -58,32 +246,78 @@
         <div class="field"><label>Ürün Adı</label><input type="text" id="prod-name" required /></div>
         <div class="field"><label>Açıklama</label><textarea id="prod-desc" rows="2" required></textarea></div>
         <div class="field-row">
-          <div class="field"><label>Fiyat (₺)</label><input type="number" id="prod-price" step="0.01" required /></div>
+          <div class="field"><label>Fiyat (₺)</label><input type="number" id="prod-price" step="0.01" min="0" required /></div>
           <div class="field"><label>Kategori</label>
             <select id="prod-category" required>
-              <option value="Telefon">Telefon</option>
-              <option value="Bilgisayar">Bilgisayar</option>
-              <option value="Oyun">Oyun</option>
-              <option value="Ses">Ses</option>
-              <option value="Fotoğraf">Fotoğraf</option>
-              <option value="TV">TV</option>
-              <option value="Saat">Saat</option>
-              <option value="Aksesuar">Aksesuar</option>
+              <option value="">— Seçin —</option>
             </select>
           </div>
         </div>
         <div class="field-row">
-          <div class="field"><label>Stok</label><input type="number" id="prod-stock" required /></div>
+          <div class="field"><label>Stok</label><input type="number" id="prod-stock" min="0" required /></div>
           <div class="field"><label>Vergi Oranı (%)</label><input type="number" id="prod-tax" value="18" required /></div>
         </div>
-        <div class="field"><label>Görsel URL</label><input type="url" id="prod-image" placeholder="https://..." /></div>
+        <div class="field"><label>Görsel URL (isteğe bağlı)</label><input type="url" id="prod-image" placeholder="https://..." /></div>
         <div class="form-err hidden" id="prod-error"></div>
         <button type="submit" class="btn-primary btn-full" id="product-submit">Kaydet</button>
       </form>
     </div>
   </div>
 
-  <!-- ── CREATE ADMIN MODAL ──────────────────────────── -->
+  <!-- Category Add Modal -->
+  <div class="overlay" id="cat-overlay" onclick="closeCategoryModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:360px;">
+      <button class="modal-x" onclick="closeCategoryModal()">✕</button>
+      <h3 class="modal-title">Yeni Kategori</h3>
+      <form id="cat-form" onsubmit="handleCategoryAdd(event)">
+        <div class="field">
+          <label>Kategori Adı</label>
+          <input type="text" id="cat-name" placeholder="Örn: Drone" required autofocus />
+        </div>
+        <div class="form-err hidden" id="cat-error"></div>
+        <button type="submit" class="btn-primary btn-full" id="cat-submit">Ekle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Category Rename Modal -->
+  <div class="overlay" id="cat-rename-overlay" onclick="closeCategoryRenameModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:360px;">
+      <button class="modal-x" onclick="closeCategoryRenameModal()">✕</button>
+      <h3 class="modal-title">Kategoriyi Düzenle</h3>
+      <form id="cat-rename-form" onsubmit="handleCategoryRename(event)">
+        <input type="hidden" id="cat-old-name" />
+        <div class="field">
+          <label>Yeni Ad</label>
+          <input type="text" id="cat-new-name" required />
+        </div>
+        <div class="form-err hidden" id="cat-rename-error"></div>
+        <button type="submit" class="btn-primary btn-full" id="cat-rename-submit">Kaydet</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Category Delete Modal -->
+  <div class="overlay" id="cat-delete-overlay" onclick="closeCategoryDeleteModal()">
+    <div class="modal" onclick="event.stopPropagation()" style="max-width:380px;">
+      <button class="modal-x" onclick="closeCategoryDeleteModal()">✕</button>
+      <h3 class="modal-title" id="cat-delete-title">Kategoriyi Sil</h3>
+      <input type="hidden" id="cat-delete-name" />
+      <p style="color:var(--text-2);margin-bottom:16px;font-size:14px;">Bu kategorideki ürünler ne olsun?</p>
+      <div class="field">
+        <label>Ürünleri taşı (boş bırakırsan kategorisiz olur)</label>
+        <select id="cat-delete-reassign">
+          <option value="">— Kategorisiz bırak —</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="btn-outline-sm btn-full" onclick="closeCategoryDeleteModal()" style="padding:10px;">İptal</button>
+        <button class="btn-primary btn-full" id="cat-delete-confirm" onclick="confirmCategoryDelete()" style="padding:10px;background:var(--red);">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Admin Modal -->
   <div class="overlay" id="admin-create-overlay" onclick="closeAdminCreateModal()">
     <div class="modal" onclick="event.stopPropagation()">
       <button class="modal-x" onclick="closeAdminCreateModal()">✕</button>
@@ -98,8 +332,7 @@
     </div>
   </div>
 
-  <!-- ── TOASTS & ALERTS ───────────────────────────────────────── -->
-  <div id="toasts"></div>
+  <!-- Confirm Modal -->
   <div class="overlay" id="confirm-overlay" style="z-index:9999;">
     <div class="modal" onclick="event.stopPropagation()">
       <h3 class="modal-title" id="confirm-title">Emin misiniz?</h3>
@@ -111,6 +344,7 @@
     </div>
   </div>
 
+  <div id="toasts"></div>
   <script src="admin.js"></script>
 </body>
 </html>

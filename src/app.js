@@ -26,6 +26,16 @@ app.use(express.urlencoded({ extended: true }));
 // ─── Static Files (Frontend) ─────────────────────────────
 app.use(express.static(path.join(__dirname, "../public"), { extensions: ["html"] }));
 
+// ─── Frontend Page Routes ─────────────────────────────────
+// Landing page (guest)
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+// Shop page (logged-in users — guard is handled client-side)
+app.get("/shop", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/shop.html"));
+});
+
 // ─── Health Check ─────────────────────────────────────────
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });

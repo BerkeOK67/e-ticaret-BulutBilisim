@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NEXUS Market — Mağaza</title>
+  <meta name="description" content="NEXUS Market — Ürünler, sepet ve siparişler." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ─────────────────────────────────────── -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="/shop" class="logo" id="logo-link">
+        <div class="logo-icon">N</div>
+        <span class="logo-text">NEXUS</span>
+        <span class="logo-sub">Market</span>
+      </a>
+
+      <div class="nav-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="nav-search-input" placeholder="Ürün, kategori ara..." oninput="searchFromNav()" />
+      </div>
+
+      <div class="nav-actions">
+        <!-- User info -->
+        <div id="user-btns">
+          <div class="user-chip">
+            <div class="user-av" id="user-av"></div>
+            <span id="user-name-nav"></span>
+          </div>
+          <div class="wallet-badge" title="Cüzdan Bakiyesi">
+            <span id="wallet-balance">₺0,00</span>
+          </div>
+          <button class="btn-primary" id="add-balance-btn" onclick="openWalletModal()">Bakiye Yükle</button>
+          <button class="nav-link-btn" onclick="showPage('orders')">📦 Siparişler</button>
+          <button class="nav-link-btn admin-only hidden" onclick="window.location.href='/admin'">⚙️ Admin</button>
+          <button class="btn-outline-sm" onclick="logout()">Çıkış</button>
+        </div>
+        <!-- Cart -->
+        <button class="cart-btn" onclick="toggleCart()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="cart-badge" id="cart-count">0</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ANNOUNCEMENT BAR -->
+  <div class="announcement-bar">
+    <span>🚚 <strong>300 TL ve üzeri</strong> siparişlerinizde kargo <strong>ÜCRETSİZ!</strong> 🎉</span>
+  </div>
+
+  <!-- ════════════════════════════════════════════════
+       SHOP PAGE
+  ════════════════════════════════════════════════ -->
+  <main id="shop-page" class="page">
+    <div class="shop-layout">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-welcome">
+          <div class="sw-avatar" id="sw-avatar"></div>
+          <div>
+            <div class="sw-hi">Merhaba,</div>
+            <div class="sw-name" id="sw-name"></div>
+          </div>
+        </div>
+
+        <nav class="cat-nav" id="shop-cat-nav">
+          <div class="cat-label">Kategoriler</div>
+          <!-- Filled by JS -->
+        </nav>
+
+        <div class="sidebar-links">
+          <button class="side-link" onclick="showPage('orders')">📦 Siparişlerim</button>
+          <button class="side-link admin-only hidden" onclick="window.location.href='/admin'">⚙️ Admin Paneli</button>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <div class="shop-main">
+        <div class="shop-topbar">
+          <div class="shop-title" id="shop-cat-title">Tüm Ürünler</div>
+          <div class="shop-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="search-input" placeholder="Ürün ara..." oninput="filterProducts()" />
+          </div>
+          <div class="product-count" id="product-count"></div>
+        </div>
+        <div class="products-grid" id="products-grid">
+          <div class="skeleton-wrap" id="products-loading">
+            <div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div><div class="skeleton"></div>
+            <div class="skeleton"></div><div class="skeleton"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ════════════════════════════════════════════════
+       ORDERS PAGE
+  ════════════════════════════════════════════════ -->
+  <main id="orders-page" class="page hidden">
+    <div class="inner-wrap">
+      <div class="inner-header">
+        <button class="back-btn" onclick="showPage('shop')">← Alışverişe Dön</button>
+        <h2>Siparişlerim</h2>
+      </div>
+      <div id="orders-container"></div>
+    </div>
+  </main>
+
+  <!-- ── CART DRAWER ─────────────────────────────────── -->
+  <div class="overlay" id="cart-overlay" onclick="toggleCart()"></div>
+  <aside class="cart-drawer" id="cart-drawer">
+    <div class="drawer-head">
+      <h3>Sepetim <span class="cart-item-count" id="cart-item-count"></span></h3>
+      <button class="x-btn" onclick="toggleCart()">✕</button>
+    </div>
+    <div class="drawer-body" id="cart-items">
+      <div class="empty-state"><div>🛒</div><p>Sepetiniz boş</p></div>
+    </div>
+    <div class="drawer-foot hidden" id="cart-footer">
+      <div class="cart-total-row">
+        <span>Toplam Tutar</span>
+        <strong id="cart-total">₺0,00</strong>
+      </div>
+      <button class="btn-checkout" id="checkout-btn" onclick="openInvoiceModal()">
+        Siparişi Tamamla →
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── WALLET MODAL ────────────────────────────────── -->
+  <div class="overlay" id="wallet-overlay" onclick="closeWalletModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <button class="modal-x" onclick="closeWalletModal()">✕</button>
+      <h3 class="modal-title">Bakiye Yükle</h3>
+      <form id="wallet-form" onsubmit="handleAddBalance(event)">
+        <div class="field">
+          <label>Yüklenecek Tutar (₺)</label>
+          <input type="number" id="wallet-amount" step="1" min="1" required placeholder="Örn: 500" />
+        </div>
+        <button type="submit" class="btn-primary btn-full" id="wallet-submit">Yükle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── INVOICE MODAL ──────────────────────────── -->
+  <div class="overlay" id="invoice-overlay" style="z-index:10000;">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3 class="modal-title">Fatura &amp; Sipariş Onayı</h3>
+      <div id="invoice-items" style="max-height:200px; overflow-y:auto; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:16px;"></div>
+      <div style="display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--text-2); align-items:flex-end;">
+        <div>KDV Hariç Ara Toplam: <strong id="inv-pretax">₺0,00</strong></div>
+        <div>KDV Tutarı: <strong id="inv-tax">₺0,00</strong></div>
+        <div id="inv-shipping-row">Kargo Ücreti: <strong id="inv-shipping">₺0,00</strong></div>
+        <div style="font-size:16px; color:var(--text); margin-top:8px;">Ödenecek Toplam: <strong id="inv-total">₺0,00</strong></div>
+      </div>
+      <div class="form-err hidden" id="inv-error" style="margin-top:12px;"></div>
+      <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="btn-outline-sm btn-full" onclick="closeInvoiceModal()" style="padding:10px;">İptal</button>
+        <button class="btn-primary btn-full" id="confirm-order-btn" onclick="confirmInvoiceOrder()" style="padding:10px;">Siparişi Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CUSTOM CONFIRM MODAL ──────────────────────────── -->
+  <div class="overlay" id="confirm-overlay" style="z-index:9999;">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3 class="modal-title" id="confirm-title">Emin misiniz?</h3>
+      <p id="confirm-msg" style="margin-bottom:20px; color:var(--text-2);"></p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-outline-sm btn-full" id="confirm-no" style="padding:10px;">İptal</button>
+        <button class="btn-primary btn-full" id="confirm-yes" style="padding:10px;">Onayla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOASTS ───────────────────────────────────────── -->
+  <div id="toasts"></div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>© 2026 NEXUS Market</span>
+      <span>☁️ AWS EC2 + RDS + ELB + Auto Scaling</span>
+    </div>
+  </footer>
+
+  <script src="shop.js"></script>
+</body>
+</html>
