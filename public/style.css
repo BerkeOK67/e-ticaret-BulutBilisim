@@ -419,11 +419,14 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 
   /* Navbar */
   #navbar { height: auto; padding-bottom: 10px; }
-  .nav-inner { flex-wrap: wrap; height: auto; padding: 12px; justify-content: space-between; }
-  .nav-search { order: 3; width: 100%; max-width: 100%; margin-top: 10px; }
+  .nav-inner { flex-wrap: wrap; height: auto; padding: 12px; justify-content: space-between; gap: 10px; }
+  .nav-search { order: 3; width: 100%; max-width: 100%; margin-top: 4px; }
   .logo-text, .logo-sub { display: none; } /* Hide text on very small screens, keep icon */
-  .nav-actions { gap: 6px; }
-  .btn-outline-sm, .nav-link-btn, .wallet-badge { font-size: 11px; padding: 5px 8px; }
+  .nav-actions { gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  #user-btns { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+  .btn-outline-sm, .nav-link-btn, .wallet-badge, #add-balance-btn { font-size: 11px; padding: 5px 8px; }
+  .user-chip { display: none; } /* Hide user avatar chip on mobile to save space */
+  .cart-btn { width: 34px; height: 34px; }
   
   /* Shop Layout */
   .shop-layout { flex-direction: column; }
