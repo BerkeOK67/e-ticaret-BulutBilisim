@@ -1,5 +1,5 @@
 /* ── CONFIG ─────────────────────────────────────────── */
-const API = 'http://localhost:3000/api';
+const API = window.location.origin + '/api';
 
 /* ── STATE ──────────────────────────────────────────── */
 let token = localStorage.getItem('token') || null;
