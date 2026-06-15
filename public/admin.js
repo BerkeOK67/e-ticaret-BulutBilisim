@@ -19,7 +19,7 @@ const EMOJIS   = CAT_KEYS.map(k => CAT_MAP[k].emoji);
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!token || currentUser?.role !== 'ADMIN') {
-    window.location.href = '/index.html';
+    window.location.href = '/';
     return;
   }
   document.getElementById('admin-name-nav').textContent = currentUser.name || currentUser.email;

@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ─── Static Files (Frontend) ─────────────────────────────
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(__dirname, "../public"), { extensions: ["html"] }));
 
 // ─── Health Check ─────────────────────────────────────────
 app.get("/health", (req, res) => {

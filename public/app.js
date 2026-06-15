@@ -57,7 +57,7 @@ function updateAuthUI() {
     }
 
     if (currentUser.role === 'ADMIN') {
-      window.location.href = '/admin.html';
+      window.location.href = '/admin';
       return;
     } else {
       // Show shop instead of landing
@@ -573,7 +573,7 @@ function showPage(page) {
     if (op) { op.classList.remove('hidden'); op.classList.add('page'); }
     loadOrders();
   } else if (page === 'admin') {
-    window.location.href = '/admin.html';
+    window.location.href = '/admin';
   }
   window.scrollTo(0, 0);
 }

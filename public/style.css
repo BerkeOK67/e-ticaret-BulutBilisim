@@ -411,10 +411,45 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 
 /* ── RESPONSIVE ───────────────────────────────────── */
 @media (max-width: 900px) {
+  /* Landing */
   .hero-inner { flex-direction: column; text-align: center; gap: 40px; }
   .hero-right { display: none; }
-  .sidebar { display: none; }
-  .shop-main { padding: 16px; }
-  .cart-drawer { width: 100%; }
   .cta-inner { flex-direction: column; text-align: center; }
+  .preview-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+
+  /* Navbar */
+  #navbar { height: auto; padding-bottom: 10px; }
+  .nav-inner { flex-wrap: wrap; height: auto; padding: 12px; justify-content: space-between; }
+  .nav-search { order: 3; width: 100%; max-width: 100%; margin-top: 10px; }
+  .logo-text, .logo-sub { display: none; } /* Hide text on very small screens, keep icon */
+  .nav-actions { gap: 6px; }
+  .btn-outline-sm, .nav-link-btn, .wallet-badge { font-size: 11px; padding: 5px 8px; }
+  
+  /* Shop Layout */
+  .shop-layout { flex-direction: column; }
+  .sidebar {
+    width: 100%; height: auto; position: relative; top: 0;
+    border-right: none; border-bottom: 1px solid var(--border);
+    padding: 10px 0;
+  }
+  .sidebar-welcome { display: none; }
+  .cat-nav { display: flex; overflow-x: auto; gap: 8px; padding: 0 16px 8px; }
+  .cat-item { width: auto; white-space: nowrap; padding: 8px 12px; }
+  .sidebar-links { display: flex; border-top: none; margin-top: 0; padding: 0 16px; gap: 8px; overflow-x: auto; }
+  .side-link { width: auto; white-space: nowrap; }
+
+  /* Products */
+  .shop-main { padding: 16px; }
+  .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .card-img { height: 140px; font-size: 40px; }
+  .card-body { padding: 12px; }
+  .card-name { font-size: 13px; }
+  .card-price { font-size: 16px; }
+  .add-btn { padding: 6px 10px; font-size: 12px; }
+
+  /* Cart & Modals */
+  .cart-drawer { width: 100%; right: -100%; }
+  .modal-content { margin: 10px; padding: 20px; width: calc(100% - 20px); }
+  
+  .inner-header { flex-direction: column; align-items: flex-start; }
 }
